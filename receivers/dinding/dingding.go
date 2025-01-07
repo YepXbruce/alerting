@@ -45,7 +45,7 @@ func (dd *Notifier) Notify(ctx context.Context, as ...*types.Alert) (bool, error
 	title := tmpl(dd.settings.Title)
 
 	msgType := tmpl(dd.settings.MessageType)
-	b, err := buildBody(dingDingURL, msgType, title, message)
+	b, err := buildBody(dingDingURL, msgType, title, message, dd.settings.At)
 	if err != nil {
 		return false, err
 	}
@@ -85,7 +85,7 @@ func buildDingDingURL(dd *Notifier) string {
 	return "dingtalk://dingtalkclient/page/link?" + q.Encode()
 }
 
-func buildBody(url string, msgType string, title string, msg string) (string, error) {
+func buildBody(url string, msgType string, title string, msg string, at At) (string, error) {
 	var bodyMsg map[string]interface{}
 	if msgType == "actionCard" {
 		bodyMsg = map[string]interface{}{
@@ -107,6 +107,7 @@ func buildBody(url string, msgType string, title string, msg string) (string, er
 			},
 		}
 	}
+	bodyMsg["at"] = at
 	body, err := json.Marshal(bodyMsg)
 	if err != nil {
 		return "", err

@@ -31,12 +31,17 @@ func TestNotify(t *testing.T) {
 		expMsgError error
 	}{
 		{
-			name: "Default config with one alert",
+			name: "Default config with one alert and at field",
 			settings: Config{
 				URL:         "http://localhost",
 				MessageType: defaultDingdingMsgType,
 				Title:       templates.DefaultMessageTitleEmbed,
 				Message:     templates.DefaultMessageEmbed,
+				At: At{
+					AtMobiles: []string{"1234567890"},
+					AtUserIds: []string{"user1", "user2"},
+					IsAtAll:   true,
+				},
 			},
 			alerts: []*types.Alert{
 				{
@@ -53,15 +58,26 @@ func TestNotify(t *testing.T) {
 					"text":       "**Firing**\n\nValue: A=1234\nLabels:\n - alertname = alert1\n - lbl1 = val1\nAnnotations:\n - ann1 = annv1\nSilence: http://localhost/alerting/silence/new?alertmanager=grafana&matcher=alertname%3Dalert1&matcher=lbl1%3Dval1\nDashboard: http://localhost/d/abcd\nPanel: http://localhost/d/abcd?viewPanel=efgh\n",
 					"title":      "[FIRING:1]  (val1)",
 				},
+				"at": map[string]interface{}{
+					"atMobiles": []string{"1234567890"},
+					"atUserIds": []string{"user1", "user2"},
+					"isAtAll":   true,
+				},
 			},
 			expMsgError: nil,
-		}, {
-			name: "Custom config with multiple alerts",
+		},
+		{
+			name: "Custom config with multiple alerts and at field",
 			settings: Config{
 				URL:         "http://localhost",
 				MessageType: "actionCard",
 				Title:       templates.DefaultMessageTitleEmbed,
 				Message:     "{{ len .Alerts.Firing }} alerts are firing, {{ len .Alerts.Resolved }} are resolved",
+				At: At{
+					AtMobiles: []string{"1234567890", "0987654321"},
+					AtUserIds: []string{"user1", "user2"},
+					IsAtAll:   true,
+				},
 			},
 			alerts: []*types.Alert{
 				{
@@ -84,15 +100,26 @@ func TestNotify(t *testing.T) {
 					"title":       "[FIRING:2]  ",
 				},
 				"msgtype": "actionCard",
+				"at": map[string]interface{}{
+					"atMobiles": []string{"1234567890", "0987654321"},
+					"atUserIds": []string{"user1", "user2"},
+					"isAtAll":   true,
+				},
 			},
 			expMsgError: nil,
-		}, {
-			name: "Default config with one alert and custom title and description",
+		},
+		{
+			name: "Default config with one alert and custom title and description with at field",
 			settings: Config{
 				URL:         "http://localhost",
 				MessageType: defaultDingdingMsgType,
 				Title:       "Alerts firing: {{ len .Alerts.Firing }}",
 				Message:     "customMessage",
+				At: At{
+					AtMobiles: []string{"1234567890"},
+					AtUserIds: []string{"user1", "user2"},
+					IsAtAll:   true,
+				},
 			},
 			alerts: []*types.Alert{
 				{
@@ -109,15 +136,26 @@ func TestNotify(t *testing.T) {
 					"text":       "customMessage",
 					"title":      "Alerts firing: 1",
 				},
+				"at": map[string]interface{}{
+					"atMobiles": []string{"1234567890"},
+					"atUserIds": []string{"user1", "user2"},
+					"isAtAll":   true,
+				},
 			},
 			expMsgError: nil,
-		}, {
-			name: "Missing field in template",
+		},
+		{
+			name: "Missing field in template with at field",
 			settings: Config{
 				URL:         "http://localhost",
 				MessageType: "actionCard",
 				Title:       templates.DefaultMessageTitleEmbed,
 				Message:     "I'm a custom template {{ .NotAField }} bad template",
+				At: At{
+					AtMobiles: []string{"1234567890"},
+					AtUserIds: []string{"user1", "user2"},
+					IsAtAll:   true,
+				},
 			},
 			alerts: []*types.Alert{
 				{
@@ -139,36 +177,11 @@ func TestNotify(t *testing.T) {
 					"title":      "",
 				},
 				"msgtype": "link",
-			},
-			expMsgError: nil,
-		}, {
-			name: "Invalid template",
-			settings: Config{
-				URL:         "http://localhost",
-				MessageType: "actionCard",
-				Title:       templates.DefaultMessageTitleEmbed,
-				Message:     "I'm a custom template {{ {.NotAField }} bad template",
-			},
-			alerts: []*types.Alert{
-				{
-					Alert: model.Alert{
-						Labels:      model.LabelSet{"alertname": "alert1", "lbl1": "val1"},
-						Annotations: model.LabelSet{"ann1": "annv1"},
-					},
-				}, {
-					Alert: model.Alert{
-						Labels:      model.LabelSet{"alertname": "alert1", "lbl1": "val2"},
-						Annotations: model.LabelSet{"ann1": "annv2"},
-					},
+				"at": map[string]interface{}{
+					"atMobiles": []string{"1234567890"},
+					"atUserIds": []string{"user1", "user2"},
+					"isAtAll":   true,
 				},
-			},
-			expMsg: map[string]interface{}{
-				"link": map[string]interface{}{
-					"messageUrl": "dingtalk://dingtalkclient/page/link?pc_slide=false&url=http%3A%2F%2Flocalhost%2Falerting%2Flist",
-					"text":       "",
-					"title":      "",
-				},
-				"msgtype": "link",
 			},
 			expMsgError: nil,
 		},

@@ -60,6 +60,11 @@ func TestNewConfig(t *testing.T) {
 				MessageType: "actionCard",
 				Title:       "Alerts firing: {{ len .Alerts.Firing }}",
 				Message:     "{{ len .Alerts.Firing }} alerts are firing, {{ len .Alerts.Resolved }} are resolved",
+				At: At{
+					AtMobiles: []string{"1234567890", "0987654321"},
+					AtUserIds: []string{"user1", "user2"},
+					IsAtAll:   true,
+				},
 			},
 		},
 	}

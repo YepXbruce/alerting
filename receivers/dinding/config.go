@@ -8,11 +8,18 @@ import (
 	"github.com/grafana/alerting/templates"
 )
 
+type At struct {
+	AtMobiles []string `json:"atMobiles,omitempty" yaml:"atMobiles,omitempty"`
+	AtUserIds []string `json:"atUserIds,omitempty" yaml:"atUserIds,omitempty"`
+	IsAtAll   bool     `json:"isAtAll,omitempty" yaml:"isAtAll,omitempty"`
+}
+
 type Config struct {
 	URL         string `json:"url,omitempty" yaml:"url,omitempty"`
 	MessageType string `json:"msgType,omitempty" yaml:"msgType,omitempty"`
 	Title       string `json:"title,omitempty" yaml:"title,omitempty"`
 	Message     string `json:"message,omitempty" yaml:"message,omitempty"`
+	At          At     `json:"at,omitempty" yaml:"at,omitempty"`
 }
 
 const defaultDingdingMsgType = "link"
